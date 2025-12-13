@@ -45,7 +45,6 @@
           "fileSystemPermissions": "true"
         }
       ],
-      "expo-sharing",
       "expo-document-picker"
     ],
     "scheme": "apppvsdemo"
