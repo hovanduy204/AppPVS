@@ -91,16 +91,17 @@ function MainTabs() {
 export default function AppNavigator() {
   const navigationRef = React.useRef(null);
 
-  return (
-    <NavigationContainer
-      ref={navigationRef}
-      onReady={() => {
-        // Navigation is ready
-      }}
-      onStateChange={(state) => {
-        // Handle state changes if needed
-      }}
-    >
+  try {
+    return (
+      <NavigationContainer
+        ref={navigationRef}
+        onReady={() => {
+          // Navigation is ready
+        }}
+        onStateChange={(state) => {
+          // Handle state changes if needed
+        }}
+      >
       <Stack.Navigator 
         screenOptions={{ 
           headerShown: false,
@@ -136,6 +137,16 @@ export default function AppNavigator() {
         />
       </Stack.Navigator>
     </NavigationContainer>
-  );
+    );
+  } catch (error) {
+    console.error('Navigation error:', error);
+    const { View, Text } = require('react-native');
+    return (
+      <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', padding: 20, backgroundColor: '#fff' }}>
+        <Text style={{ color: 'red', fontSize: 16, textAlign: 'center' }}>Lỗi điều hướng</Text>
+        <Text style={{ color: '#666', fontSize: 12, textAlign: 'center', marginTop: 10 }}>{error?.message || error?.toString()}</Text>
+      </View>
+    );
+  }
 }
 

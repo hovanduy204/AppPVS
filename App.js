@@ -22,9 +22,11 @@ try {
   AppNavigator = require('./src/navigation/AppNavigator').default;
 } catch (e) {
   console.error('Error loading AppNavigator:', e);
+  const errorMessage = e?.message || e?.toString() || 'Unknown error';
   AppNavigator = () => (
     <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', padding: 20, backgroundColor: '#fff' }}>
-      <Text style={{ color: 'red', fontSize: 16, textAlign: 'center' }}>Lỗi khởi tạo ứng dụng</Text>
+      <Text style={{ color: 'red', fontSize: 16, textAlign: 'center', marginBottom: 10 }}>Lỗi khởi tạo ứng dụng</Text>
+      <Text style={{ color: '#666', fontSize: 12, textAlign: 'center' }}>{errorMessage}</Text>
     </View>
   );
 }
