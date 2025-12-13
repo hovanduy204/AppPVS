@@ -23,8 +23,8 @@ try {
 } catch (e) {
   console.error('Error loading AppNavigator:', e);
   AppNavigator = () => (
-    <View style={styles.errorContainer}>
-      <Text style={styles.errorText}>Lỗi khởi tạo ứng dụng</Text>
+    <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', padding: 20, backgroundColor: '#fff' }}>
+      <Text style={{ color: 'red', fontSize: 16, textAlign: 'center' }}>Lỗi khởi tạo ứng dụng</Text>
     </View>
   );
 }
