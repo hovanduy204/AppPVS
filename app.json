@@ -18,7 +18,7 @@
     },
     "android": {
       "package": "com.chillcasa.apppvsdemo",
-      "versionCode": 4,
+      "versionCode": 5,
       "permissions": [],
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
@@ -26,7 +26,8 @@
       },
       "compileSdkVersion": 34,
       "targetSdkVersion": 34,
-      "minSdkVersion": 21
+      "minSdkVersion": 21,
+      "usesCleartextTraffic": true
     },
     "web": {
       "favicon": "./assets/favicon.png"
@@ -37,7 +38,16 @@
       }
     },
     "owner": "chillcasa",
-    "plugins": [],
+    "plugins": [
+      [
+        "expo-file-system",
+        {
+          "fileSystemPermissions": "true"
+        }
+      ],
+      "expo-sharing",
+      "expo-document-picker"
+    ],
     "scheme": "apppvsdemo"
   }
 }
