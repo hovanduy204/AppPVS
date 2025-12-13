@@ -1,3 +1,4 @@
+import 'react-native-gesture-handler';
 import { registerRootComponent } from 'expo';
 
 // Try to enable screens, but don't fail if it doesn't work
