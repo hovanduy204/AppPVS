@@ -1,0 +1,43 @@
+{
+  "expo": {
+    "name": "APP PVS DEMO",
+    "slug": "app-pvs-demo",
+    "version": "1.0.2",
+    "orientation": "portrait",
+    "icon": "./assets/icon.png",
+    "userInterfaceStyle": "light",
+    "splash": {
+      "image": "./assets/splash-icon.png",
+      "resizeMode": "contain",
+      "backgroundColor": "#ffffff"
+    },
+    "ios": {
+      "supportsTablet": true,
+      "bundleIdentifier": "com.chillcasa.apppvsdemo",
+      "buildNumber": "1"
+    },
+    "android": {
+      "package": "com.chillcasa.apppvsdemo",
+      "versionCode": 4,
+      "permissions": [],
+      "adaptiveIcon": {
+        "foregroundImage": "./assets/adaptive-icon.png",
+        "backgroundColor": "#ffffff"
+      },
+      "compileSdkVersion": 34,
+      "targetSdkVersion": 34,
+      "minSdkVersion": 21
+    },
+    "web": {
+      "favicon": "./assets/favicon.png"
+    },
+    "extra": {
+      "eas": {
+        "projectId": "70bf4463-6816-4779-8a16-15a2e820665b"
+      }
+    },
+    "owner": "chillcasa",
+    "plugins": [],
+    "scheme": "apppvsdemo"
+  }
+}
