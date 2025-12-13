@@ -1,8 +1,12 @@
 import { registerRootComponent } from 'expo';
-import { enableScreens } from 'react-native-screens';
 
-// Enable screens for better performance
-enableScreens();
+// Try to enable screens, but don't fail if it doesn't work
+try {
+  const { enableScreens } = require('react-native-screens');
+  enableScreens();
+} catch (e) {
+  console.warn('Could not enable screens:', e);
+}
 
 import App from './App';
 

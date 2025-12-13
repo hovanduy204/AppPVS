@@ -3,10 +3,14 @@ import { NavigationContainer } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { Ionicons } from '@expo/vector-icons';
-import { enableScreens } from 'react-native-screens';
 
-// Enable screens for better performance
-enableScreens();
+// Try to enable screens
+try {
+  const { enableScreens } = require('react-native-screens');
+  enableScreens();
+} catch (e) {
+  // Ignore if it fails
+}
 
 // Screens
 import LoginScreen from '../screens/LoginScreen';
