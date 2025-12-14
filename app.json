@@ -19,25 +19,19 @@
     "android": {
       "package": "com.chillcasa.apppvsdemo",
       "versionCode": 5,
-      "permissions": [],
+      "permissions": [
+        "android.permission.INTERNET"
+      ],
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#ffffff"
       },
-      "compileSdkVersion": 34,
-      "targetSdkVersion": 34,
-      "minSdkVersion": 21,
       "usesCleartextTraffic": true
     },
     "web": {
       "favicon": "./assets/favicon.png"
     },
-    "extra": {
-      "eas": {
-        "projectId": "70bf4463-6816-4779-8a16-15a2e820665b"
-      }
-    },
-    "owner": "chillcasa",
+    "owner": "chillsaa",
     "plugins": [
       [
         "expo-file-system",
@@ -45,8 +39,24 @@
           "fileSystemPermissions": "true"
         }
       ],
-      "expo-document-picker"
+      "expo-document-picker",
+      [
+        "expo-build-properties",
+        {
+          "android": {
+            "compileSdkVersion": 35,
+            "targetSdkVersion": 34,
+            "buildToolsVersion": "35.0.0"
+          }
+        }
+      ],
+      "./plugins/withAgpVersion"
     ],
-    "scheme": "apppvsdemo"
+    "scheme": "apppvsdemo",
+    "extra": {
+      "eas": {
+        "projectId": "43602ac4-4f98-4940-9395-9cab45bfbd76"
+      }
+    }
   }
 }

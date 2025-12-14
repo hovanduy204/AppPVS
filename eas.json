@@ -21,6 +21,10 @@
       }
     }
   },
+  "hooks": {
+    "postInstall": "eas-hooks/post-install.sh",
+    "prebuild": "eas-hooks/post-install.sh"
+  },
   "submit": {
     "production": {}
   }
