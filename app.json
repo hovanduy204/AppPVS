@@ -46,7 +46,11 @@
           "android": {
             "compileSdkVersion": 35,
             "targetSdkVersion": 34,
-            "buildToolsVersion": "35.0.0"
+            "buildToolsVersion": "35.0.0",
+            "dependencies": {
+              "androidx.core:core": "1.13.1",
+              "androidx.core:core-ktx": "1.13.1"
+            }
           }
         }
       ],
