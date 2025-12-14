@@ -3,9 +3,10 @@ const fs = require('fs');
 const path = require('path');
 
 /**
- * Config plugin to:
- * 1. Force androidx.core dependencies to compatible versions
- * 2. Update AGP version if needed
+ * Comprehensive config plugin to fix Android build issues:
+ * 1. Update AGP to 8.6.0
+ * 2. Force androidx.core dependencies to 1.12.0
+ * 3. Add dependency resolution strategy in root build.gradle
  */
 const withAgpVersion = (config) => {
   return withDangerousMod(config, [
@@ -14,74 +15,137 @@ const withAgpVersion = (config) => {
       const projectRoot = config.modRequest.platformProjectRoot;
       const buildGradlePath = path.join(projectRoot, 'build.gradle');
       const appBuildGradlePath = path.join(projectRoot, 'app', 'build.gradle');
+      const gradlePropertiesPath = path.join(projectRoot, 'gradle.properties');
       
-      console.log(`[withAgpVersion] Plugin started`);
+      console.log(`[withAgpVersion] ===== Plugin started =====`);
       console.log(`[withAgpVersion] Android project root: ${projectRoot}`);
       
-      // Update root build.gradle (AGP version)
+      // 1. Update AGP version in root build.gradle
       if (fs.existsSync(buildGradlePath)) {
         let buildGradleContent = fs.readFileSync(buildGradlePath, 'utf8');
+        let updated = false;
         
-        // Update AGP version to 8.6.0 if needed
-        const agpMatch = buildGradleContent.match(/com\.android\.tools\.build:gradle:([0-9.]+)/);
-        if (agpMatch) {
-          const currentVersion = agpMatch[1];
-          const versionParts = currentVersion.split('.').map(Number);
-          const major = versionParts[0] || 0;
-          const minor = versionParts[1] || 0;
-          
-          if (major < 8 || (major === 8 && minor < 6)) {
-            console.log(`[withAgpVersion] Updating AGP from ${currentVersion} to 8.6.0`);
+        // Update AGP version to 8.6.0
+        buildGradleContent = buildGradleContent.replace(
+          /(com\.android\.tools\.build:gradle:)([0-9.]+)/g,
+          (match, prefix, version) => {
+            const versionParts = version.split('.').map(Number);
+            const major = versionParts[0] || 0;
+            const minor = versionParts[1] || 0;
+            
+            if (major < 8 || (major === 8 && minor < 6)) {
+              console.log(`[withAgpVersion] Updating AGP from ${version} to 8.6.0`);
+              updated = true;
+              return `${prefix}8.6.0`;
+            }
+            return match;
+          }
+        );
+        
+        // Add dependency resolution strategy to force androidx.core versions
+        if (!buildGradleContent.includes('androidx.core:core:1.12.0')) {
+          // Find allprojects or subprojects block
+          if (buildGradleContent.includes('allprojects {')) {
+            const resolutionStrategy = `
+    configurations.all {
+        resolutionStrategy {
+            force 'androidx.core:core:1.12.0'
+            force 'androidx.core:core-ktx:1.12.0'
+        }
+    }`;
+            
             buildGradleContent = buildGradleContent.replace(
-              /(com\.android\.tools\.build:gradle:)([0-9.]+)/g,
-              '$18.6.0'
+              /(allprojects\s*\{[^}]*repositories\s*\{[^}]*\})/s,
+              `$1${resolutionStrategy}`
             );
-            fs.writeFileSync(buildGradlePath, buildGradleContent, 'utf8');
-            console.log(`[withAgpVersion] ✓ Updated AGP to 8.6.0`);
+            updated = true;
+            console.log(`[withAgpVersion] ✓ Added dependency resolution strategy`);
+          } else if (buildGradleContent.includes('subprojects {')) {
+            const resolutionStrategy = `
+    configurations.all {
+        resolutionStrategy {
+            force 'androidx.core:core:1.12.0'
+            force 'androidx.core:core-ktx:1.12.0'
+        }
+    }`;
+            
+            buildGradleContent = buildGradleContent.replace(
+              /(subprojects\s*\{[^}]*repositories\s*\{[^}]*\})/s,
+              `$1${resolutionStrategy}`
+            );
+            updated = true;
+            console.log(`[withAgpVersion] ✓ Added dependency resolution strategy`);
           }
         }
+        
+        if (updated) {
+          fs.writeFileSync(buildGradlePath, buildGradleContent, 'utf8');
+          console.log(`[withAgpVersion] ✓ Updated root build.gradle`);
+        }
+      } else {
+        console.log(`[withAgpVersion] WARNING: Root build.gradle not found at ${buildGradlePath}`);
       }
       
-      // Force androidx.core dependencies in app/build.gradle
+      // 2. Force androidx.core in app/build.gradle
       if (fs.existsSync(appBuildGradlePath)) {
         let appBuildGradleContent = fs.readFileSync(appBuildGradlePath, 'utf8');
         let updated = false;
         
-        // Check if dependencies block exists
+        // Remove any existing androidx.core dependencies
+        const beforeRemove = appBuildGradleContent;
+        appBuildGradleContent = appBuildGradleContent.replace(
+          /^\s*implementation\s+['"]androidx\.core:core[^'"]*['"]\s*$/gm,
+          ''
+        );
+        appBuildGradleContent = appBuildGradleContent.replace(
+          /^\s*implementation\s+['"]androidx\.core:core-ktx[^'"]*['"]\s*$/gm,
+          ''
+        );
+        
+        if (appBuildGradleContent !== beforeRemove) {
+          updated = true;
+        }
+        
+        // Add forced versions at the beginning of dependencies block
         if (appBuildGradleContent.includes('dependencies {')) {
-          // Force androidx.core versions
-          // Remove any existing androidx.core dependencies
-          appBuildGradleContent = appBuildGradleContent.replace(
-            /implementation\s+['"]androidx\.core:core[^'"]*['"]/g,
-            ''
-          );
-          appBuildGradleContent = appBuildGradleContent.replace(
-            /implementation\s+['"]androidx\.core:core-ktx[^'"]*['"]/g,
-            ''
-          );
-          
-          // Add forced versions
-          const forceDependencies = `
-    // Force androidx.core versions for AGP 8.2.1 compatibility
-    implementation 'androidx.core:core:1.12.0'
-    implementation 'androidx.core:core-ktx:1.12.0'`;
-          
-          // Insert after dependencies { or before first dependency
           if (!appBuildGradleContent.includes('androidx.core:core:1.12.0')) {
+            const forceDeps = `
+    // Force androidx.core versions for compatibility
+    implementation('androidx.core:core:1.12.0') {
+        force = true
+    }
+    implementation('androidx.core:core-ktx:1.12.0') {
+        force = true
+    }`;
+            
             appBuildGradleContent = appBuildGradleContent.replace(
               /(dependencies\s*\{)/,
-              `$1${forceDependencies}`
+              `$1${forceDeps}`
             );
             updated = true;
-            console.log(`[withAgpVersion] ✓ Added forced androidx.core dependencies`);
+            console.log(`[withAgpVersion] ✓ Added forced dependencies in app/build.gradle`);
           }
         }
         
         if (updated) {
           fs.writeFileSync(appBuildGradlePath, appBuildGradleContent, 'utf8');
         }
+      } else {
+        console.log(`[withAgpVersion] WARNING: app/build.gradle not found at ${appBuildGradlePath}`);
       }
       
+      // 3. Add to gradle.properties if exists
+      if (fs.existsSync(gradlePropertiesPath)) {
+        let gradleProps = fs.readFileSync(gradlePropertiesPath, 'utf8');
+        
+        if (!gradleProps.includes('android.suppressUnsupportedCompileSdk')) {
+          gradleProps += '\nandroid.suppressUnsupportedCompileSdk=35\n';
+          fs.writeFileSync(gradlePropertiesPath, gradleProps, 'utf8');
+          console.log(`[withAgpVersion] ✓ Updated gradle.properties`);
+        }
+      }
+      
+      console.log(`[withAgpVersion] ===== Plugin completed =====`);
       return config;
     },
   ]);
